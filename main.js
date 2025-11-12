@@ -153,4 +153,54 @@ function blindCartEvents(){
         saveCart(cart);
         renderCart();
     }
+    
 }
+
+/* $('.qty-input').off('change').on('change', function(){
+            var $inp = $(this);
+            var qty = parseInt($inp.val(),10) || 1;
+            if (qty < 1) qty = 1; $inp.val(qty);
+            var id = $inp.closest('.cart-item').data('id');
+            var cart = getCart().map(function(it){ if (it.id === id) it.qty = qty; return it; });
+            saveCart(cart);
+            // atualizar linha
+            var item = cart.find(function(it){ return it.id === id; });
+            if (item) $inp.closest('.cart-item').find('.line-total').text(formatPrice(item.price * item.qty));
+            updateTotals();
+        });
+        $('.btn-plus').off('click').on('click', function(){
+            var $inp = $(this).siblings('.qty-input');
+            $inp.val( (parseInt($inp.val(),10)||0) + 1 ).trigger('change');
+        });
+        $('.btn-minus').off('click').on('click', function(){
+            var $inp = $(this).siblings('.qty-input');
+            var cur = parseInt($inp.val(),10) || 1; if (cur>1) $inp.val(cur-1).trigger('change');
+        });
+    }
+
+    // Adicionar ao carrinho (qualquer página)
+    $(document).on('click', '.add-to-cart', function(e){
+        e.preventDefault();
+        var $prod = $(this).closest('.product-item');
+        var title = $prod.find('.product-title').text().trim();
+        var priceText = $prod.find('.product-price').text().trim();
+        // parse simples: remove tudo que não seja digito ou vírgula/ponto
+        var cleaned = (priceText||'').replace(/[^0-9,.-]+/g,'').replace('.', '').replace(',', '.');
+        var price = parseFloat(cleaned) || 0;
+        var img = $prod.find('img').attr('src') || '';
+        var id = $prod.data('id') || title.replace(/\s+/g,'-').toLowerCase();
+        var cart = getCart();
+        var found = cart.find(function(it){ return it.id === id; });
+        if (found) found.qty = (found.qty||1) + 1; else cart.push({ id:id, title:title, price:price, img:img, qty:1 });
+        saveCart(cart);
+        // Se estivermos na página do carrinho, re-renderiza
+        renderCart();
+        // Substituímos o alert()
+        showToast('Produto adicionado ao carrinho!');
+    });
+
+    // Adiciona o elemento do "toast" ao body (para substituir o alert)
+    $('body').append('<div id="toast-message"></div>');
+
+    // renderiza ao carregar a página (aplica somente se existir o #cart-items)
+    renderCart();*/
