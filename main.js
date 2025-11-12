@@ -1,112 +1,98 @@
-document.addEventListener('DOMContentLoeaded' , () =>{
-Document.querrySelectorAll('.add-to-cart').forEach(button => {
-button.addEventListener('click' , (event) =>{
-        event.preventDefault();
-        alert('Produto adicionado com sucesso');
-     });
-   });
+document.addEventListener('DOMContentLoaded', () => {
+    // A ação de adicionar ao carrinho será tratada pelo bloco jQuery abaixo (mantido separado para clareza)
+
+    // Validação do E-mail da Newsletter
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const emailInput = newsletterForm.querySelector('.newsletter-input');
+            const email = emailInput.value;
+
+            if (validateEmail(email)) {
+                alert('Inscrição na newsletter realizada com sucesso!');
+                // Aqui você pode adicionar lógica para enviar o e-mail para o servidor
+                emailInput.value = ''; // Limpa o campo após o envio
+            } else {
+                alert('Por favor, insira um endereço de e-mail válido.');
+            }
+        });
+    }
+
+    function validateEmail(email) {
+        const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    // Filtro de Busca Dinâmico para Produtos
+    const searchInput = document.querySelector('.search-input');
+    const productList = document.querySelector('.product-list');
+
+    if (searchInput && productList) {
+        searchInput.addEventListener('keyup', (event) => {
+            const searchTerm = event.target.value.toLowerCase();
+            const products = productList.querySelectorAll('.product-item');
+            console.log('Search Term:', searchTerm);
+
+            products.forEach(product => {
+                const productName = product.querySelector('.product-title').textContent.toLowerCase();
+                if (productName.includes(searchTerm)) {
+                    product.style.visibility = 'visible'; // Mostra o produto
+                    product.style.position = 'static'; // Garante que ocupe espaço
+                } else {
+                    product.style.visibility = 'hidden'; // Esconde o produto
+                    product.style.position = 'absolute'; // Remove do fluxo do documento
+                }
+            });
+        });
+    }
 });
 
-function validateEmail(email)
-{
-
-
-const re =
- /^^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-return re.test(String(email),toLowerCase());
-const newsletterForm = document.querrySelector('newsletter-form');
-if (newsletterForm)
-{
-   newsletterForm.addEventListener('submit' ,(event)=> {
-      event.preventDefault();
-      const emailInput = newsletterForm.querrySelector('.newsletter-input');
-      const email = emailInput.value;
-      if (validate(Email))
-
-      {
-        alert('Inscrição realizada com sucesso!');
-        emailInput.value='';
-      }
-      else{
-        alert('Por favor,insira um email válido!');
-      }
-
-   });
-
-}
-const searchInput =document.querySelector('.search-input');
-const productList =document.querrySelector('.product-list');
-if (searchInput && productList){
-   searchInput.addEventListener('keyup' ,(event) =>{
-      const searchTerm = event.target.value.toLowerCase();
-      const products = productList.querrySelectorAll(' .product-item');
-      products.forEach(product => {
-         const productName = product.querrySelector('product-title').textContent.toLowerCase();
-         if (productName.includes(searchTerm))
-         {
-            product.style.visibility ='visible';
-            product.style.position ='static';
-
-         }
-         else {
-            product.style.visibility ='hidden';
-            product.style.position ='absolute';
-         }
-      });
-   });
-}
-}
-
-
-
-
-
-
-$(function(){
-
-    function getCart(){
-        try{return JSON.parse(localStorage.getItem('cart')) || '[]';}
-        catch{return[];}
+/* ======= Bloco mínimo jQuery para carrinho (adicionar / renderizar / remover / alterar qtd) ======= */
+/* Isso é propositalmente pequeno e separado: não reescreve o código existente, só implementa o carrinho com jQuery. */
+$(function() {
+    function getCart() {
+        try { return JSON.parse(localStorage.getItem('cart') || '[]'); }
+        catch (e) { return []; }
     }
-    function saveCart(cart){
-        localStorage.setItem('cart' ,JSON.stringify(cart));
-    }
-    function formatPrice(value){
-        return Number(num || 0).toLocaleString('PT-br' , {
-            style : 'currency',
+    function saveCart(cart) { localStorage.setItem('cart', JSON.stringify(cart)); }
+
+    function formatPrice(num) {
+        return Number(num || 0).toLocaleString('pt-BR', {
+            style: 'currency',
             currency: 'BRL'
         });
     }
 
-    const showToast = (message) =>{
+    const showToast = (message) => {
         const $toast = $('#toast-message');
-        if($toast.lenght === 0){
-            console.warn("Elemento #toast-message~não encontrado, o Alert() foi removido");
+        if ($toast.length === 0) {
+            // Se o toast não existir, não faz nada (poderia criar, mas mantemos simples)
+            console.warn("Elemento #toast-message não encontrado. O alert() foi removido.");
             return;
-
         }
-    }
-    $toast.text(message).fadeIn(400);
-    $setTimeout(() =>{
-        $toast.fadeOut(400);
-                       
-    },3000);
-    function renderCart(){
-        var $container = $('#cart-items');
-        if($container.lenght ===0 ) return;
-    const cart =getCart();
-    $container.empty();
-    if(!cart || cart.lenght ===0){
-        $container ('#empty-cart-message').removeClass('d-none');
-        $('#subtotal-value').text(formatPrice(0));
-        $('#total-value').text(formatPrice(0));
-        return;
+        $toast.text(message).fadeIn(400);
+        setTimeout(() => {
+            $toast.fadeOut(400);
+        }, 3000); // A mensagem desaparece após 3 segundos
+    };
 
-    }
-    $('empty-cart-message').addClass('d-none');
-    cart.forEach(function(item));{
-        var line =item.price * item.qty;
-       var $art = $('<article class="cart-item card mb-3" data-id="'+item.id+'">' +
+
+    function renderCart() {
+        var $container = $('#cart-items');
+        if ($container.length === 0) return; // não estamos na página de carrinho
+        var cart = getCart();
+        $container.empty();
+        if (!cart || cart.length === 0) {
+            $('#empty-cart-message').removeClass('d-none');
+            $('#subtotal-value').text(formatPrice(0));
+            $('#total-value').text(formatPrice(0));
+            return;
+        }
+        $('#empty-cart-message').addClass('d-none');
+        cart.forEach(function(item) {
+            var line = item.price * item.qty;
+            var $art = $('<article class="cart-item card mb-3" data-id="'+item.id+'">' +
                 '<section class="card-body"><section class="d-flex justify-content-between">' +
                 '<section class="d-flex flex-row align-items-center">' +
                 '<figure class="me-3 mb-0"><img src="'+item.img+'" class="img-fluid rounded-3" alt="'+item.title+'" style="width:65px"></figure>' +
@@ -122,41 +108,28 @@ $(function(){
                 '<a href="#" class="text-danger ms-3 remove-item">Remover</a>' +
                 '</section></section></section></article>');
             $container.append($art);
-            
-        };
-    blindCartEvents();
-    updateTotals();
-
-
-
-    
+        });
+        bindCartEvents();
+        updateTotals();
     }
 
-    function updateTotals(){
-        var cart =getCart();
-        var subtotals=0;
-    
-        cart.forEach(function(i));{
-            subtotal += i.price * i.qty;
-}
+    function updateTotals() {
+        var cart = getCart();
+        var subtotal = 0;
+        cart.forEach(function(i){ subtotal += i.price * i.qty; });
+        $('#subtotal-value').text(formatPrice(subtotal));
+        $('#total-value').text(formatPrice(subtotal));
     }
-    $('#subtotal-value').text(formatPrice(subtotal));
-    $('#total-value').text(formatPrice(subtotal));
 
-});
-
-function blindCartEvents(){
-    $('.remove-item').off('click').on('click' ,function(e));{
-        e.preventDefault();
-        var id = $(this).closest('.cart-item').data('id');
-        var cart =getCart().filter(function(i){ return i.id !== id;});
-        saveCart(cart);
-        renderCart();
-    }
-    
-}
-
-/* $('.qty-input').off('change').on('change', function(){
+    function bindCartEvents() {
+        $('.remove-item').off('click').on('click', function(e){
+            e.preventDefault();
+            var id = $(this).closest('.cart-item').data('id');
+            var cart = getCart().filter(function(it){ return it.id !== id; });
+            saveCart(cart);
+            renderCart();
+        });
+        $('.qty-input').off('change').on('change', function(){
             var $inp = $(this);
             var qty = parseInt($inp.val(),10) || 1;
             if (qty < 1) qty = 1; $inp.val(qty);
@@ -203,4 +176,5 @@ function blindCartEvents(){
     $('body').append('<div id="toast-message"></div>');
 
     // renderiza ao carregar a página (aplica somente se existir o #cart-items)
-    renderCart();*/
+    renderCart();
+});
