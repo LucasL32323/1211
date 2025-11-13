@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput && productList) {
         searchInput.addEventListener('keyup', (event) => {
             const searchTerm = event.target.value.toLowerCase();
-            const products = productList.querySelectorAll('.product-item');
+            const products = productList.querySelectorAll('.col-md-6');
             console.log('Search Term:', searchTerm);
 
             products.forEach(product => {
@@ -152,11 +152,11 @@ $(function() {
     }
 
     // Adicionar ao carrinho (qualquer página)
-    $(document).on('click', '.add-to-cart', function(e){
+    $(document).on('click', '.btn btn-carrinho', function(e){
         e.preventDefault();
-        var $prod = $(this).closest('.product-item');
+        var $prod = $(this).closest('.container my-5');
         var title = $prod.find('.product-title').text().trim();
-        var priceText = $prod.find('.product-price').text().trim();
+        var priceText = $prod.find('.preco-produto fw-bold fs -4').text().trim();
         // parse simples: remove tudo que não seja digito ou vírgula/ponto
         var cleaned = (priceText||'').replace(/[^0-9,.-]+/g,'').replace('.', '').replace(',', '.');
         var price = parseFloat(cleaned) || 0;
@@ -178,3 +178,12 @@ $(function() {
     // renderiza ao carregar a página (aplica somente se existir o #cart-items)
     renderCart();
 });
+
+/* 
+trocar variaveis do professor pelas minhas
+
+
+
+
+
+*/ 
